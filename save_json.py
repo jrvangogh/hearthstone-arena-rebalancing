@@ -11,12 +11,15 @@ Reads Hearthstone card data in as a JSON file and saves it to a CSV
 import json as js
 import urllib.request as urllib
 import pandas as pd
+import requests
+from lxml import html
 
-URL = "https://api.hearthstonejson.com/v1/13921/enUS/cards.collectible.json"
+CARD_DATA_URL = "https://api.hearthstonejson.com/v1/13921/enUS/cards.collectible.json"
+CARD_ARENA_SCORES_URL = "http://www.heartharena.com/tierlist"
 JSON_OUT_FILE = "collectibles.json"
 CSV_OUT_FILE = "collectibles.csv"
 ARENA_OUT_FILE = "arena_data.csv"
-arena_cols = ['id',
+ARENA_COLS = ['id',
               'set',
               'name', 
               'rarity', 
@@ -28,9 +31,12 @@ arena_cols = ['id',
               'durability',
               'mechanics',
               'overload']
+
+CLASSES = ['druid', 'hunter', 'mage', 'paladin', 'priest', 
+           'rogue', 'shaman', 'warlock', 'warrior', 'any']
         
-              
-request = urllib.Request(URL, None, headers={'User-Agent':'Mozilla'})
+#%% Get Card Data As JSON File
+request = urllib.Request(CARD_DATA_URL, None, headers={'User-Agent':'Mozilla'})
 response = urllib.urlopen(request)
 
 data_json = js.loads(response.read().decode('utf-8'))
@@ -42,5 +48,23 @@ data_dataframe = pd.read_json(JSON_OUT_FILE)
 data_dataframe.to_csv(CSV_OUT_FILE)
 
 arena_dataframe = data_dataframe[data_dataframe['type'] != 'HERO']
-arena_dataframe = arena_dataframe[arena_cols]
+arena_dataframe = arena_dataframe[ARENA_COLS]
 arena_dataframe.to_csv(ARENA_OUT_FILE)
+
+
+#%% Get Card Arena Scores From HearthArena
+
+page = requests.get(CARD_ARENA_SCORES_URL)
+tree = html.fromstring(page.content)
+
+class_sections = []
+for hs_class in CLASSES:
+    xpath_string = '//section[@id=' + hs_class + ']'
+    class_sections.append(tree.xpath(xpath_string))
+
+
+
+
+
+
+
