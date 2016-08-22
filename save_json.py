@@ -34,6 +34,10 @@ ARENA_COLS = ['id',
 
 CLASSES = ['druid', 'hunter', 'mage', 'paladin', 'priest', 
            'rogue', 'shaman', 'warlock', 'warrior', 'any']
+
+#%% "Fix" Current Pandas Bug with NaN Values and Large Dataframes
+import warnings
+warnings.simplefilter(action = "ignore", category = RuntimeWarning)
         
 #%% Get Card Data As JSON File
 request = urllib.Request(CARD_DATA_URL, None, headers={'User-Agent':'Mozilla'})
@@ -44,12 +48,11 @@ data_json = js.loads(response.read().decode('utf-8'))
 with open(JSON_OUT_FILE, 'w') as outfile:
     js.dump(data_json, outfile)
 
-data_dataframe = pd.read_json(JSON_OUT_FILE)
-data_dataframe.to_csv(CSV_OUT_FILE)
+data_df = pd.read_json(JSON_OUT_FILE)
+data_df.to_csv(CSV_OUT_FILE)
 
-arena_dataframe = data_dataframe[data_dataframe['type'] != 'HERO']
-arena_dataframe = arena_dataframe[ARENA_COLS]
-arena_dataframe.to_csv(ARENA_OUT_FILE)
+arena_df = data_df[data_df['type'] != 'HERO']
+arena_df = arena_df[ARENA_COLS]
 
 
 #%% Get Card Arena Scores From HearthArena
@@ -74,10 +77,29 @@ for hs_class in CLASSES:
 
 #%% Separate Arena Data By Class
 df_dict = {c:{} for c in CLASSES}
-neutral = arena_dataframe[arena_dataframe['playerClass'] == 'NEUTRAL']
+neutral_df = arena_df[arena_df['playerClass'] == 'NEUTRAL']
 for hs_class in CLASSES:
-    class_df = arena_dataframe[arena_dataframe['playerClass'] == hs_class.upper()]
-    class_df = class_df.append(neutral)
-    class_df['arenaScoreClass'] = hs_class.upper()
+    if hs_class != 'any':
+        class_df = arena_df[arena_df['playerClass'] == hs_class.upper()]
+        class_df = class_df.append(neutral_df.copy())
+        class_df['arenaScoreClass'] = hs_class.upper()
+    else:
+        class_df = neutral_df.copy()
+        class_df['arenaScoreClass'] = 'NEUTRAL'
     df_dict[hs_class] = class_df
     
+
+#%% Add Arena Scores
+def get_score(card_name, score_dict):
+    return score_dict.get(card_name)
+
+for hs_class in CLASSES:
+    d = score_dict[hs_class]
+    df = df_dict[hs_class]
+    df['arenaScore'] = df['name'].apply(get_score, args=(d,))
+
+
+#%% Combine Together In One Data Frame
+arena_df = pd.concat([df_dict[df] for df in df_dict])
+arena_df.to_csv(ARENA_OUT_FILE)
+
