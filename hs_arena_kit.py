@@ -47,7 +47,7 @@ class ArenaDraftSimulator:
         self.draft = None
 
 
-    def offerCard(self):
+    def offer_card(self):
         """
         Randomly selects a card using card weights and returns
         its name and score in a tuple
@@ -57,14 +57,14 @@ class ArenaDraftSimulator:
         return( (self.scores[i], self.names[i]) )
 
 
-    def offerCards(self, num_iter):
+    def offer_cards(self, num_iter):
         """
         Randomly selects multiple cards
         """
         return ([self.offerCard() for c in range(num_iter)])
 
 
-    def draftCard(self, max_only=True):
+    def draft_card(self, max_only=True):
         """
         Randomly selects 3 cards and returns the one
         with the highest arena score
@@ -72,7 +72,7 @@ class ArenaDraftSimulator:
         return max([self.offerCards(3)])
 
 
-    def draftCards(self, num_iter, as_DF=False):
+    def draft_cards(self, num_iter, as_DF=False):
         """
         Randomly drafts multiple cards and stores this draft
         for stats
@@ -81,7 +81,7 @@ class ArenaDraftSimulator:
         return self.getDraft(as_DF)
 
     
-    def getDraft(self, as_DF=False):
+    def get_draft(self, as_DF=False):
         """
         Returns the draft of cards
         """
@@ -90,13 +90,14 @@ class ArenaDraftSimulator:
         return self.draft
 
 
-    def getDraftStats(self):
+    def get_draft_stats(self):
         """
         Returns a stastical description of the scores of the draft
         """
         return (self.getDraft(as_DF=True)['score'].describe())
 
 
+#%% Methods for Calculating Weights of a Standard Arena Draft
 
 
 
