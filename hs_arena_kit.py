@@ -6,6 +6,8 @@ Created on Wed Aug 24 22:09:08 2016
 """
 
 import numpy as np
+import random
+from bisect import bisect
 
 class ArenaDraftCalculator:
     def __init__(self, card_weights=None, card_names=None, card_scores=None,
@@ -40,6 +42,14 @@ class ArenaDraftCalculator:
             self.scores = [c[2] for c in card_tuples]
         
         self.cum_weights = list(np.cumsum(self.weights))
+        self.total_weight = self.cum_weights[-1]
 
 
-    
+    def offerCard(self):
+        """
+        Randomly selects a card using card weights and returns
+        its name and score in a tuple
+        """
+        r = random.random() * self.total_weight
+        i = bisect(self.cum_weights, r)
+        return( (self.names[i], self.scores[i]) )
