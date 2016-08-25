@@ -49,7 +49,7 @@ with open(JSON_OUT_FILE, 'w') as outfile:
     js.dump(data_json, outfile)
 
 data_df = pd.read_json(JSON_OUT_FILE)
-data_df.to_csv(CSV_OUT_FILE)
+data_df.to_csv(CSV_OUT_FILE, index=False)
 
 arena_df = data_df[data_df['type'] != 'HERO']
 arena_df = arena_df[ARENA_COLS]
@@ -102,5 +102,4 @@ for hs_class in CLASSES:
 #%% Combine Together In One Data Frame And Remove Cards With No Arena Score
 arena_df = pd.concat([df_dict[df] for df in df_dict])
 arena_df = arena_df[arena_df.arenaScore.notnull()]
-arena_df.to_csv(ARENA_OUT_FILE)
-
+arena_df.to_csv(ARENA_OUT_FILE, index=False)
