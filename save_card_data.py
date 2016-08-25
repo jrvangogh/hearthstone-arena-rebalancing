@@ -13,12 +13,13 @@ import urllib.request as urllib
 import pandas as pd
 import requests
 from lxml import html
+import hs_arena_kit as hak
 
 CARD_DATA_URL = "https://api.hearthstonejson.com/v1/13921/enUS/cards.collectible.json"
 CARD_ARENA_SCORES_URL = "http://www.heartharena.com/tierlist"
 JSON_OUT_FILE = "collectibles.json"
-CSV_OUT_FILE = "collectibles.csv"
 ARENA_OUT_FILE = "arena_data.csv"
+ARENA_NEUTRAL_OUT_FILE = "arena_data_neutral.csv"
 ARENA_COLS = ['id',
               'set',
               'name', 
@@ -101,4 +102,7 @@ for hs_class in CLASSES:
 #%% Combine Together In One Data Frame And Remove Cards With No Arena Score
 arena_df = pd.concat([df_dict[df] for df in df_dict])
 arena_df = arena_df[arena_df.arenaScore.notnull()]
-arena_df.to_csv(ARENA_OUT_FILE, index=False)
+arena_df = hak.add_standard_offering_rates(arena_df)
+arena_df[arena_df['arenaScoreClass'] != 'NEUTRAL'].to_csv(ARENA_OUT_FILE, index=False)
+arena_df[arena_df['arenaScoreClass'] == 'NEUTRAL'].\
+    to_csv(ARENA_NEUTRAL_OUT_FILE, index=False)
