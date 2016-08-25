@@ -52,4 +52,10 @@ class ArenaDraftCalculator:
         """
         r = random.random() * self.total_weight
         i = bisect(self.cum_weights, r)
-        return( (self.names[i], self.scores[i]) )
+        return( (self.scores[i], self.names[i]) )
+    
+    def offerCards(self, num_iter):
+        """
+        Randomly selects multiple cards
+        """
+        return ([self.offerCard() for c in range(num_iter)])
