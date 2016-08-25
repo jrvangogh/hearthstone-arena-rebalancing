@@ -99,7 +99,8 @@ for hs_class in CLASSES:
     df['arenaScore'] = df['name'].apply(get_score, args=(d,))
 
 
-#%% Combine Together In One Data Frame
+#%% Combine Together In One Data Frame And Remove Cards With No Arena Score
 arena_df = pd.concat([df_dict[df] for df in df_dict])
+arena_df = arena_df[arena_df.arenaScore.notnull()]
 arena_df.to_csv(ARENA_OUT_FILE)
 
