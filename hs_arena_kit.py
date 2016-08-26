@@ -138,8 +138,8 @@ def add_standard_offering_rates(df):
             
             # Calculate the weight of the cards
             eff_count = full_count + class_count
-            class_w = RARITY_RATES[r] * 2 * class_count / eff_count
-            neut_w = RARITY_RATES[r] * neutral_count / eff_count
+            neut_w = RARITY_RATES[r] / eff_count
+            class_w = 2 * neut_w
             print(c, r)
             print(full_count, class_count, neutral_count)
             print(class_w, neut_w)
