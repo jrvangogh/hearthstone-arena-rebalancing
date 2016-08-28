@@ -105,7 +105,7 @@ CLASSES = ['DRUID', 'HUNTER', 'MAGE', 'PALADIN', 'PRIEST',
 RARITY_RATES = {'COMMON': 76, 'RARE': 20, 'EPIC': 3, 'LEGENDARY': 1}
 
 
-def add_standard_offering_rates(df):
+def add_standard_weight(df, col_name='weight'):
     """
     Given a data frame of arena cards, adds a column that
     contains the probabilities of each card being offered
@@ -151,26 +151,50 @@ def add_standard_offering_rates(df):
                 df.set_value((df['arenaScoreClass'] == c) & \
                              (df['playerClass'] == c) & \
                              ((df['rarity'] == r) | (df['rarity'] == 'FREE')),
-                             'weight', class_w)
+                             col_name, class_w)
                          
                 df.set_value((df['arenaScoreClass'] == c)& \
                              (df['playerClass'] == 'NEUTRAL') & \
                              ((df['rarity'] == r) | (df['rarity'] == 'FREE')),
-                             'weight', neut_w)
+                             col_name, neut_w)
             else:
                 df.set_value((df['arenaScoreClass'] == c) & \
                              (df['playerClass'] == c) & \
                              (df['rarity'] == r),
-                             'weight', class_w)
+                             col_name, class_w)
                          
                 df.set_value((df['arenaScoreClass'] == c)& \
                              (df['playerClass'] == 'NEUTRAL') & \
                              (df['rarity'] == r),
-                             'weight', neut_w)
+                             col_name, neut_w)
     return df
 
 
-def INCORRECT_add_standard_offering_rates(df):
+def add_linear_weight(df, scale=1, min_val=0, col_name='weightLinear'):
+    """
+    Given a data frame of arena cards, adds a column that
+    calculates the weight of a card being offered as a
+    linear correlation to its arena score
+    """
+    df[col_name] = scale * df['arenaScore'] + min_val
+    df[col_name] = df[col_name] / sum(df[col_name])
+    return df
+
+
+def add_linear_centered_weight(df, center_val, max_val,
+                               col_name='weightLinearCenter'):
+    """
+    Given a data frame of arena cards, adds a column that
+    calculates the weight of a card based on its arena score.
+    The weight scales linearly based on the difference 
+    between a card's arena score and the center value score.
+    """
+    df[col_name] = max_val - abs(df['arenaScore'] - center_val)
+    df[col_name] = df[col_name] / sum(df[col_name])
+    return df
+
+
+def INCORRECT_add_standard_weight(df):
     """
     ----THIS FUNCTION IS CURRENTLY THOUGHT TO BE INCORRECT----
     Given a data frame of arena cards, adds a column that
