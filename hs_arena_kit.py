@@ -170,13 +170,24 @@ def add_standard_weight(df, col_name='weight'):
     return df
 
 
-def add_linear_weight(df, scale=1, min_val=0, col_name='weightLinear'):
+def add_linear_weight(df, scale=1, buffer=0, col_name='weightLinear'):
     """
     Given a data frame of arena cards, adds a column that
     calculates the weight of a card being offered as a
     linear correlation to its arena score
     """
-    df[col_name] = scale * df['arenaScore'] + min_val
+    df[col_name] = scale * df['arenaScore'] + buffer
+    df[col_name] = df[col_name] / sum(df[col_name])
+    return df
+
+
+def add_inv_weight(df, scale=1, buffer=0, col_name='weightInverse'):
+    """
+    Given a data frame of arena cards, adds a column that
+    calculates the weight of a card being offered as an
+    inverse correlation to its arena score
+    """
+    df[col_name] = scale / df['arenaScore'] + buffer
     df[col_name] = df[col_name] / sum(df[col_name])
     return df
 
@@ -190,6 +201,8 @@ def add_linear_centered_weight(df, center_val, max_val,
     between a card's arena score and the center value score.
     """
     df[col_name] = max_val - abs(df['arenaScore'] - center_val)
+    num = df._get_numeric_data()
+    num[num < 0] = 0
     df[col_name] = df[col_name] / sum(df[col_name])
     return df
 
