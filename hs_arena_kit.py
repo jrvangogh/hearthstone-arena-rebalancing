@@ -236,16 +236,18 @@ def add_all_weights(df, center_val=None, arg_dict=None):
     columns using the parameters contained in the
     arg_dict. The keys of the arg_dict refer to the
     names of each weight calculation:
-    'linear', 'inverse', 'linear_center', 'normal'
+    'standard', 'linear', 'inverse', 'linear_center', 'normal'
     If a dictionary is not passed, you can simply pass
     in a data frame (and potentially a center value).
     """
     if arg_dict is None:
+        add_standard_weight(df)
         add_linear_weight(df)
         add_inverse_weight(df)
         add_linear_centered_weight(df, center_val=center_val)
         add_normal_weight(df, mean=center_val)
     else:
+        add_standard_weight(**arg_dict['standard'])
         add_linear_weight(**arg_dict['linear'])
         add_inverse_weight(**arg_dict['inverse'])
         add_linear_centered_weight(**arg_dict['linear_center'])
