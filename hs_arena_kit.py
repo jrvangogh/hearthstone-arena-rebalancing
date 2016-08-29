@@ -8,6 +8,7 @@ Created on Wed Aug 24 22:09:08 2016
 import numpy as np
 import random
 from bisect import bisect
+import statistics as stat
 import pandas as pd
 import warnings
 
@@ -192,7 +193,7 @@ def add_inv_weight(df, scale=1, buffer=0, col_name='weightInverse'):
     return df
 
 
-def add_linear_centered_weight(df, center_val, max_val,
+def add_linear_centered_weight(df, center_val=None, max_val=None,
                                col_name='weightLinearCenter'):
     """
     Given a data frame of arena cards, adds a column that
@@ -200,6 +201,12 @@ def add_linear_centered_weight(df, center_val, max_val,
     The weight scales linearly based on the difference 
     between a card's arena score and the center value score.
     """
+    if center_val is None:
+        center_val = stat.median(df['arenaScore'])
+    if max_val is None:
+        max_val = max( max(df['arenaScore']) - center_val, 
+                       center_val - min(df['arenaScore']) )
+    
     df[col_name] = max_val - abs(df['arenaScore'] - center_val)
     num = df._get_numeric_data()
     num[num < 0] = 0
