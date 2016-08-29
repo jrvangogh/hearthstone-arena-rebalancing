@@ -13,6 +13,8 @@ from scipy.stats import norm
 import pandas as pd
 import warnings
 
+NUM_CLASSES = 9
+
 class ArenaDraftSimulator:
     def __init__(self, card_weights=None, card_names=None, card_scores=None,
                  card_tuples=None, card_df=None, df_cols=None):
@@ -179,7 +181,7 @@ def add_linear_weight(df, scale=1, buffer=0, col_name='weightLinear'):
     linear correlation to its arena score
     """
     df[col_name] = scale * df['arenaScore'] + buffer
-    df[col_name] = df[col_name] / sum(df[col_name])
+    df[col_name] = df[col_name] / sum(df[col_name]) * NUM_CLASSES
     return df
 
 
@@ -190,7 +192,7 @@ def add_inverse_weight(df, scale=1, buffer=0, col_name='weightInverse'):
     inverse correlation to its arena score
     """
     df[col_name] = scale / df['arenaScore'] + buffer
-    df[col_name] = df[col_name] / sum(df[col_name])
+    df[col_name] = df[col_name] / sum(df[col_name]) * NUM_CLASSES
     return df
 
 
@@ -211,7 +213,7 @@ def add_linear_centered_weight(df, center_val=None, max_val=None,
     df[col_name] = max_val - abs(df['arenaScore'] - center_val)
     num = df._get_numeric_data()
     num[num < 0] = 0
-    df[col_name] = df[col_name] / sum(df[col_name])
+    df[col_name] = df[col_name] / sum(df[col_name]) * NUM_CLASSES
     return df
 
 
@@ -226,7 +228,7 @@ def add_normal_weight(df, mean=None, variance=0.5,
     if mean is None:
         mean = stat.median(df['arenaScore'])
     n = norm(loc=mean, scale=variance)
-    df[col_name] = n.pdf(df['arenaScore'])
+    df[col_name] = n.pdf(df['arenaScore']) * NUM_CLASSES
     return df
 
 
