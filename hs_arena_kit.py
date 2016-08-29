@@ -172,6 +172,17 @@ def add_standard_weight(df, col_name='weight'):
     return df
 
 
+def scale_by_class(df, col_name):
+    """
+    Given a numeric column for a data frame, scales the column
+    so that the values sum to 100 for each separate class
+    """
+    for c in CLASSES:
+        scale = 100 / sum(df[df['arenaScoreClass'] == c][col_name])
+        df.loc[df['arenaScoreClass'] == c, col_name] = \
+            df.loc[df['arenaScoreClass'] == c, col_name] * scale
+
+
 def add_linear_weight(df, scale=1, buffer=0, col_name='weightLinear'):
     """
     Given a data frame of arena cards, adds a column that
@@ -179,7 +190,7 @@ def add_linear_weight(df, scale=1, buffer=0, col_name='weightLinear'):
     linear correlation to its arena score
     """
     df[col_name] = scale * df['arenaScore'] + buffer
-    df[col_name] = df[col_name] / sum(df[col_name])
+    scale_by_class(df, col_name)
     return df
 
 
@@ -190,7 +201,7 @@ def add_inverse_weight(df, scale=1, buffer=0, col_name='weightInverse'):
     inverse correlation to its arena score
     """
     df[col_name] = scale / df['arenaScore'] + buffer
-    df[col_name] = df[col_name] / sum(df[col_name])
+    scale_by_class(df, col_name)
     return df
 
 
@@ -211,7 +222,7 @@ def add_linear_centered_weight(df, center_val=None, max_val=None,
     df[col_name] = max_val - abs(df['arenaScore'] - center_val)
     num = df._get_numeric_data()
     num[num < 0] = 0
-    df[col_name] = df[col_name] / sum(df[col_name])
+    scale_by_class(df, col_name)
     return df
 
 
@@ -227,6 +238,7 @@ def add_normal_weight(df, mean=None, variance=0.5,
         mean = stat.median(df['arenaScore'])
     n = norm(loc=mean, scale=variance)
     df[col_name] = n.pdf(df['arenaScore'])
+    scale_by_class(df, col_name)
     return df
 
 
