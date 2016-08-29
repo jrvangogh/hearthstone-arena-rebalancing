@@ -9,6 +9,7 @@ import numpy as np
 import random
 from bisect import bisect
 import statistics as stat
+from scipy.stats import norm
 import pandas as pd
 import warnings
 
@@ -182,7 +183,7 @@ def add_linear_weight(df, scale=1, buffer=0, col_name='weightLinear'):
     return df
 
 
-def add_inv_weight(df, scale=1, buffer=0, col_name='weightInverse'):
+def add_inverse_weight(df, scale=1, buffer=0, col_name='weightInverse'):
     """
     Given a data frame of arena cards, adds a column that
     calculates the weight of a card being offered as an
@@ -212,6 +213,43 @@ def add_linear_centered_weight(df, center_val=None, max_val=None,
     num[num < 0] = 0
     df[col_name] = df[col_name] / sum(df[col_name])
     return df
+
+
+def add_normal_weight(df, mean=None, variance=0.5,
+                      col_name='weightNormal'):
+    """
+    Given a data frame of arena cards, adds a column that
+    calculates the weight of a card based on its arena score.
+    The weight is calculated using a normal distributions
+    PDF on arena scores.
+    """
+    if mean is None:
+        mean = stat.median(df['arenaScore'])
+    n = norm(loc=mean, scale=variance)
+    df[col_name] = n.pdf(df['arenaScore'])
+    return df
+
+
+def add_all_weights(df, center_val=None, arg_dict=None):
+    """
+    Given a data frame, adds all of the above weight
+    columns using the parameters contained in the
+    arg_dict. The keys of the arg_dict refer to the
+    names of each weight calculation:
+    'linear', 'inverse', 'linear_center', 'normal'
+    If a dictionary is not passed, you can simply pass
+    in a data frame (and potentially a center value).
+    """
+    if arg_dict is None:
+        add_linear_weight(df)
+        add_inverse_weight(df)
+        add_linear_centered_weight(df, center_val=center_val)
+        add_normal_weight(df, mean=center_val)
+    else:
+        add_linear_weight(**arg_dict['linear'])
+        add_inverse_weight(**arg_dict['inverse'])
+        add_linear_centered_weight(**arg_dict['linear_center'])
+        add_normal_weight(**arg_dict['normal'])
 
 
 def INCORRECT_add_standard_weight(df):
