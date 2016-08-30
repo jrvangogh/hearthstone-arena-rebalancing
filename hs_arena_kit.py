@@ -64,7 +64,7 @@ class ArenaDraftSimulator:
         """
         Randomly selects multiple cards
         """
-        return ([self.offerCard() for c in range(num_iter)])
+        return ([self.offer_card() for c in range(num_iter)])
 
 
     def draft_card(self, max_only=True):
@@ -72,7 +72,7 @@ class ArenaDraftSimulator:
         Randomly selects 3 cards and returns the one
         with the highest arena score
         """
-        return max([self.offerCards(3)])
+        return max([self.offer_cards(3)])
 
 
     def draft_cards(self, num_iter, as_DF=False):
@@ -80,8 +80,8 @@ class ArenaDraftSimulator:
         Randomly drafts multiple cards and stores this draft
         for stats
         """
-        self.draft = [self.draftCard() for c in range(num_iter)]
-        return self.getDraft(as_DF)
+        self.draft = [self.draft_card() for c in range(num_iter)]
+        return self.get_draft(as_DF)
 
     
     def get_draft(self, as_DF=False):
@@ -97,7 +97,7 @@ class ArenaDraftSimulator:
         """
         Returns a stastical description of the scores of the draft
         """
-        return (self.getDraft(as_DF=True)['score'].describe())
+        return (self.get_draft(as_DF=True)['score'].describe())
 
 
 #%% Methods for Calculating Weights of a Standard Arena Draft
@@ -105,6 +105,11 @@ class ArenaDraftSimulator:
 CLASSES = ['DRUID', 'HUNTER', 'MAGE', 'PALADIN', 'PRIEST', 
            'ROGUE', 'SHAMAN', 'WARLOCK', 'WARRIOR']
 RARITY_RATES = {'COMMON': 76, 'RARE': 20, 'EPIC': 3, 'LEGENDARY': 1}
+DEFAULT_WEIGHT_FORMULAS = {'standard': 'weight',
+                           'linear': 'weightLinear',
+                           'inverse': 'weightInverse',
+                           'linear_centered': 'weightLinearCentered',
+                           'normal': 'weightNormal'}
 
 
 def add_standard_weight(df, col_name='weight'):
@@ -136,17 +141,19 @@ def add_standard_weight(df, col_name='weight'):
             # Count the number of cards based on rarities and class
             full_count = len(f)
             class_count = len(f[f['playerClass'] == c])
-            neutral_count = full_count - class_count
+            #neutral_count = full_count - class_count
             
             # Calculate the weight of the cards
             eff_count = full_count + class_count
             neut_w = RARITY_RATES[r] / eff_count
             class_w = 2 * neut_w
+            """
             print(c, r)
             print(full_count, class_count, neutral_count)
             print(class_w, neut_w)
             print(class_count * class_w, neutral_count * neut_w, class_count * class_w + neutral_count * neut_w)
             print('')
+            """
             
             # Set the cards' weights
             if r == 'COMMON':
@@ -206,7 +213,7 @@ def add_inverse_weight(df, scale=1, buffer=0, col_name='weightInverse'):
 
 
 def add_linear_centered_weight(df, center_val=None, max_val=None,
-                               col_name='weightLinearCenter'):
+                               col_name='weightLinearCentered'):
     """
     Given a data frame of arena cards, adds a column that
     calculates the weight of a card based on its arena score.
