@@ -15,6 +15,7 @@ STATS_CSV = "stats.csv"
 data = pd.read_csv("arena_data.csv")
 classes = list(data["arenaScoreClass"].unique())
 
+iterations = 3000000
 score_median = stat.median(data[data['arenaScoreClass'] == 'SHAMAN']['arenaScore'])
 
 #%% Add New Columns for Different Weight Formulas
@@ -35,8 +36,8 @@ for c in hak.CLASSES:
         stat['formula'] = formula
         stats.append(stat.transpose())
 stats = pd.concat(stats, axis=1).transpose()
-cols = ['formula', 'class', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']
-stats = stats[cols]
 stats = stats.sort(columns=['formula', 'class'])
 stats = stats.reset_index()
+cols = ['formula', 'class', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']
+stats = stats[cols]
 stats.to_csv(STATS_CSV, index=False)
