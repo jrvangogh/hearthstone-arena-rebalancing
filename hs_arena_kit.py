@@ -72,7 +72,7 @@ class ArenaDraftSimulator:
         Randomly selects 3 cards and returns the one
         with the highest arena score
         """
-        return max([self.offer_cards(3)])
+        return max(self.offer_cards(3))
 
 
     def draft_cards(self, num_iter, as_DF=False):
