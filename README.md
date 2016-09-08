@@ -12,7 +12,8 @@ Results:
 * To my surprise, the 9 classes had very balanced arena drafts from a purely tier list score perspective
 
 Notes:
-
+* Hearthstone card data in JSON format obtained from https://hearthstonejson.com/
+* Tier list scores obtained from http://www.heartharena.com/tierlist
 
 
 ### Action Items/Changelog
